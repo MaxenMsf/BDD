@@ -1,0 +1,119 @@
+EXO 1
+
+db.vol.insertOne({ NA: 100, Nom: "AIRBUS", Capacite: 300, Localite: "CDG" })
+
+db.vol.insertMany([
+    { NA: 100, Nom: "B737", Capacite: 220, Localite: "CDG" }, 
+    { NA: 104, Nom: "B737", Capacite: 250, Localite: "MDR" }, 
+    { NA: 105, Nom: "AIRBUS", Capacite: 300, Localite: "CDG" }
+])
+
+db.vol.find()
+
+db.vol.find({ Capacite:{ $gt:120 } })
+
+db.vol.find(
+    {$and:[{Capacite:{ $gt:70 }}, {Capacite:{ $lt:120 }}]})
+
+db.vol.find({}, { Nom: 1, Capacite: 1})
+
+db.vol.distinct("Localite")
+db.vol.distinct("Nom")
+db.vol.distinct("Capacite")
+
+db.vol.find(
+    { Capacite:{$gte:100} }, 
+    { Localite:1, Nom:1, Capacite:1 }
+)
+
+db.vol.find(
+    { $and:[{ Localite: { $eq: 'CDG' }, Capacite:{$gte:180} }] },
+    { Nom:1, Capacite:1 }
+)
+
+db.vol.update(
+    { “NA”:104 }, 
+    { $set:{ “Capacite”:350} },
+    { multi:true }
+)
+
+db.avion.remove(
+    { “Capacite”: {$lt:200} },
+    { multi:true }
+)
+
+db.avion.find().sort({"Nom":1})
+
+EXO 2
+
+_id
+airline
+flight
+source_city
+departure_time
+stops
+arrival_time
+destination_city
+class
+duration
+days_left
+price
+
+db.Vols.count()
+300153
+
+db.Vols.distinct("airline", 
+	{ duration: { $gt:2 }, departure_time: "Morning" }
+)
+[ 'AirAsia', 'Air_India', 'GO_FIRST', 'Indigo', 'SpiceJet', 'Vistara' ]
+
+
+db.Vols.find({airline:{$eq:"Vistara"}})
+{
+  _id: ObjectId('64ff67b96817d5ad97f780a2'),
+  airline: 'Vistara',
+  flight: 'UK-995',
+  source_city: 'Delhi',
+  departure_time: 'Morning',
+  stops: 'zero',
+  arrival_time: 'Afternoon',
+  destination_city: 'Mumbai',
+  class: 'Economy',
+  duration: 2.25,
+  days_left: 1,
+  price: 5955
+}
+{
+  _id: ObjectId('64ff67b96817d5ad97f780a3'),
+  airline: 'Vistara',
+  flight: 'UK-963',
+  source_city: 'Delhi',
+  departure_time: 'Morning',
+  stops: 'zero',
+  arrival_time: 'Morning',
+  destination_city: 'Mumbai',
+  class: 'Economy',
+  duration: 2.33,
+  days_left: 1,
+  price: 5955
+}
+
+db.Vols.count({arrival_time: "Evening", stops: "zero"})
+9338
+
+db.Vols.aggregate([
+    { $group: { _id: "$airline", totalVols: { $sum:1 } } }
+])
+{
+  _id: 'Air_India',
+  totalVols: 80892
+}
+
+db.Vols.aggregate([
+    { $match: {class:"Economy"} },
+    { $group: { _id: "$airline", totalVols: { $sum:1 } } }
+])
+{
+  _id: 'Air_India',
+  totalVols: 47994
+}
