@@ -117,3 +117,249 @@ db.Vols.aggregate([
   _id: 'Air_India',
   totalVols: 47994
 }
+
+db.Vols.aggregate([
+  { $group: { _id: "$airline", total: { $sum:"$price" } } }
+])
+  { _id: 'SpiceJet', total: 55681482 },
+  { _id: 'Vistara', total: Long('3886470735') },
+  { _id: 'AirAsia', total: 65858089 },
+  { _id: 'GO_FIRST', total: 130973972 },
+  { _id: 'Indigo', total: 229580207 },
+  { _id: 'Air_India', total: 1901529790 }
+
+db.Vols.find({class:"Economy"})
+  .sort({price: -1})
+  .limit(10)
+[
+  {
+    _id: ObjectId('64ff67bf6817d5ad97fa8550'),
+    airline: 'Air_India',
+    flight: 'AI-539',
+    source_city: 'Chennai',
+    departure_time: 'Evening',
+    stops: 'one',
+    arrival_time: 'Evening',
+    destination_city: 'Kolkata',
+    class: 'Economy',
+    duration: 24.58,
+    days_left: 1,
+    price: 42349
+  },
+  {
+    _id: ObjectId('64ff67bc6817d5ad97f8f151'),
+    airline: 'Air_India',
+    flight: 'AI-565',
+    source_city: 'Bangalore',
+    departure_time: 'Afternoon',
+    stops: 'one',
+    arrival_time: 'Afternoon',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 25.25,
+    days_left: 3,
+    price: 40354
+  },
+  {
+    _id: ObjectId('64ff67bf6817d5ad97fa5df5'),
+    airline: 'Vistara',
+    flight: 'UK-836',
+    source_city: 'Chennai',
+    departure_time: 'Morning',
+    stops: 'one',
+    arrival_time: 'Night',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 9.5,
+    days_left: 3,
+    price: 37646
+  },
+  {
+    _id: ObjectId('64ff67bf6817d5ad97fa782a'),
+    airline: 'Vistara',
+    flight: 'UK-832',
+    source_city: 'Chennai',
+    departure_time: 'Early_Morning',
+    stops: 'one',
+    arrival_time: 'Afternoon',
+    destination_city: 'Bangalore',
+    class: 'Economy',
+    duration: 9.08,
+    days_left: 10,
+    price: 36911
+  },
+  {
+    _id: ObjectId('64ff67bf6817d5ad97fa75d8'),
+    airline: 'Air_India',
+    flight: 'AI-539',
+    source_city: 'Chennai',
+    departure_time: 'Evening',
+    stops: 'one',
+    arrival_time: 'Afternoon',
+    destination_city: 'Bangalore',
+    class: 'Economy',
+    duration: 19.5,
+    days_left: 1,
+    price: 36333
+  },
+  {
+    _id: ObjectId('64ff67bf6817d5ad97fa5df4'),
+    airline: 'Vistara',
+    flight: 'UK-836',
+    source_city: 'Chennai',
+    departure_time: 'Morning',
+    stops: 'one',
+    arrival_time: 'Night',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 11.08,
+    days_left: 3,
+    price: 36071
+  },
+  {
+    _id: ObjectId('64ff67ba6817d5ad97f80b57'),
+    airline: 'Air_India',
+    flight: 'AI-877',
+    source_city: 'Delhi',
+    departure_time: 'Morning',
+    stops: 'two_or_more',
+    arrival_time: 'Early_Morning',
+    destination_city: 'Chennai',
+    class: 'Economy',
+    duration: 20.33,
+    days_left: 2,
+    price: 35145
+  },
+  {
+    _id: ObjectId('64ff67bf6817d5ad97fa5df3'),
+    airline: 'Air_India',
+    flight: 'AI-440',
+    source_city: 'Chennai',
+    departure_time: 'Early_Morning',
+    stops: 'one',
+    arrival_time: 'Afternoon',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 32.92,
+    days_left: 3,
+    price: 34982
+  },
+  {
+    _id: ObjectId('64ff67bf6817d5ad97fa423b'),
+    airline: 'Vistara',
+    flight: 'UK-822',
+    source_city: 'Chennai',
+    departure_time: 'Morning',
+    stops: 'one',
+    arrival_time: 'Night',
+    destination_city: 'Delhi',
+    class: 'Economy',
+    duration: 11.42,
+    days_left: 3,
+    price: 34968
+  },
+  {
+    _id: ObjectId('64ff67bd6817d5ad97f954f4'),
+    airline: 'Vistara',
+    flight: 'UK-776',
+    source_city: 'Kolkata',
+    departure_time: 'Evening',
+    stops: 'one',
+    arrival_time: 'Afternoon',
+    destination_city: 'Delhi',
+    class: 'Economy',
+    duration: 20.58,
+    days_left: 2,
+    price: 34944
+  }
+]
+
+db.Vols.find({
+  source_city: { $regex: '(?=.*e)(?=.*i)', $options: 'i' }
+})
+[
+  {
+    _id: ObjectId('64ff67b96817d5ad97f780b0'),
+    airline: 'Air_India',
+    flight: 'AI-665',
+    source_city: 'Delhi',
+    departure_time: 'Early_Morning',
+    stops: 'zero',
+    arrival_time: 'Morning',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 2.17,
+    days_left: 1,
+    price: 5955
+  },
+  {
+    _id: ObjectId('64ff67b96817d5ad97f780b3'),
+    airline: 'GO_FIRST',
+    flight: 'G8-266',
+    source_city: 'Delhi',
+    departure_time: 'Early_Morning',
+    stops: 'one',
+    arrival_time: 'Evening',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 11.75,
+    days_left: 1,
+    price: 5954
+  },
+  {
+    _id: ObjectId('64ff67b96817d5ad97f780b1'),
+    airline: 'AirAsia',
+    flight: 'I5-747',
+    source_city: 'Delhi',
+    departure_time: 'Evening',
+    stops: 'one',
+    arrival_time: 'Early_Morning',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 12.25,
+    days_left: 1,
+    price: 5949
+  },
+  {
+    _id: ObjectId('64ff67b96817d5ad97f780b2'),
+    airline: 'AirAsia',
+    flight: 'I5-747',
+    source_city: 'Delhi',
+    departure_time: 'Evening',
+    stops: 'one',
+    arrival_time: 'Morning',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 16.33,
+    days_left: 1,
+    price: 5949
+  },
+  {
+    _id: ObjectId('64ff67b96817d5ad97f780b4'),
+    airline: 'GO_FIRST',
+    flight: 'G8-101',
+    source_city: 'Delhi',
+    departure_time: 'Early_Morning',
+    stops: 'one',
+    arrival_time: 'Night',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 14.5,
+    days_left: 1,
+    price: 5954
+  },
+  {
+    _id: ObjectId('64ff67b96817d5ad97f780b5'),
+    airline: 'GO_FIRST',
+    flight: 'G8-103',
+    source_city: 'Delhi',
+    departure_time: 'Evening',
+    stops: 'one',
+    arrival_time: 'Morning',
+    destination_city: 'Mumbai',
+    class: 'Economy',
+    duration: 15.67,
+    days_left: 1,
+    price: 5954
+  }
+]
