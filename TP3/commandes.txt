@@ -1,48 +1,46 @@
 EXO 1
 
-db.vol.insertOne({ NA: 100, Nom: "AIRBUS", Capacite: 300, Localite: "CDG" })
+db.vol.insertOne({ NA: 100, Nom: "AIRBUS", Capacite: 300, Localite: "CDG" }) = Insert into vol values (100, AIRBUS, 300, CDG);
 
 db.vol.insertMany([
     { NA: 100, Nom: "B737", Capacite: 220, Localite: "CDG" }, 
     { NA: 104, Nom: "B737", Capacite: 250, Localite: "MDR" }, 
     { NA: 105, Nom: "AIRBUS", Capacite: 300, Localite: "CDG" }
-])
+]) = Insert into vol values ( (100, B737,220,CDG), (104,B737,250,MDR), (105, AIRBUS, 300, CDG));
 
-db.vol.find()
+db.vol.find() = Select * from vol;
 
-db.vol.find({ Capacite:{ $gt:120 } })
+db.vol.find({ Capacite:{ $gt:120 } }) Select * from vol where Capacite > 120;
 
 db.vol.find(
-    {$and:[{Capacite:{ $gt:70 }}, {Capacite:{ $lt:120 }}]})
+    {$and:[{Capacite:{ $gt:70 }}, {Capacite:{ $lt:120 }}]}) = Select * from vol where Capacite > 70 and Capacite < 120;
 
-db.vol.find({}, { Nom: 1, Capacite: 1})
+db.vol.find({}, { Nom: 1, Capacite: 1}) = Select nom, capacite from vol;
 
-db.vol.distinct("Localite")
-db.vol.distinct("Nom")
-db.vol.distinct("Capacite")
+db.vol.distinct("Localite") = Select distinct localite from vol;
 
 db.vol.find(
     { Capacite:{$gte:100} }, 
     { Localite:1, Nom:1, Capacite:1 }
-)
+) = Select localite, nom, capacite from vol where capacite >= 100;
 
 db.vol.find(
     { $and:[{ Localite: { $eq: 'CDG' }, Capacite:{$gte:180} }] },
     { Nom:1, Capacite:1 }
-)
+) = Select nom, capacite from vol where localite =’CDG’ and capacite > 180
 
 db.vol.update(
     { “NA”:104 }, 
     { $set:{ “Capacite”:350} },
     { multi:true }
-)
+) = Update vol set capacite = 350 where num= 104;
 
 db.avion.remove(
     { “Capacite”: {$lt:200} },
     { multi:true }
-)
+) = Delete from avion where Capacite < 200;
 
-db.avion.find().sort({"Nom":1})
+db.avion.find().sort({"Nom":1}) =  Select * from avion order by Nom asc;
 
 EXO 2
 
@@ -59,307 +57,177 @@ duration
 days_left
 price
 
-db.Vols.count()
-300153
+db.Vols.count_documents() = Déterminer le nombre de documents dans la collection.
 
 db.Vols.distinct("airline", 
 	{ duration: { $gt:2 }, departure_time: "Morning" }
-)
-[ 'AirAsia', 'Air_India', 'GO_FIRST', 'Indigo', 'SpiceJet', 'Vistara' ]
+) = Retourner les noms des compagnies aériennes dont la durée de vol dépasse deux heures et qui décollent le matin.
 
+db.Vols.find({airline:{$eq:"Vistara"}}) = Liste des vols de la compagnie ”Vistara”.
 
-db.Vols.find({airline:{$eq:"Vistara"}})
-{
-  _id: ObjectId('64ff67b96817d5ad97f780a2'),
-  airline: 'Vistara',
-  flight: 'UK-995',
-  source_city: 'Delhi',
-  departure_time: 'Morning',
-  stops: 'zero',
-  arrival_time: 'Afternoon',
-  destination_city: 'Mumbai',
-  class: 'Economy',
-  duration: 2.25,
-  days_left: 1,
-  price: 5955
-}
-{
-  _id: ObjectId('64ff67b96817d5ad97f780a3'),
-  airline: 'Vistara',
-  flight: 'UK-963',
-  source_city: 'Delhi',
-  departure_time: 'Morning',
-  stops: 'zero',
-  arrival_time: 'Morning',
-  destination_city: 'Mumbai',
-  class: 'Economy',
-  duration: 2.33,
-  days_left: 1,
-  price: 5955
-}
-
-db.Vols.count({arrival_time: "Evening", stops: "zero"})
-9338
+db.Vols.count({arrival_time: "Evening", stops: "zero"}) = Nombre des vols qui arrivent le matin et que le nombre de stops est égal à zéro.
 
 db.Vols.aggregate([
     { $group: { _id: "$airline", totalVols: { $sum:1 } } }
-])
-{
-  _id: 'Air_India',
-  totalVols: 80892
-}
+]) = Retourner pour chaque compagnies aériennes le nombre de vols.
 
 db.Vols.aggregate([
     { $match: {class:"Economy"} },
     { $group: { _id: "$airline", totalVols: { $sum:1 } } }
-])
-{
-  _id: 'Air_India',
-  totalVols: 47994
-}
+]) = Retourner pour chaque compagnies aériennes le nombre de vols économique.
 
 db.Vols.aggregate([
   { $group: { _id: "$airline", total: { $sum:"$price" } } }
-])
-  { _id: 'SpiceJet', total: 55681482 },
-  { _id: 'Vistara', total: Long('3886470735') },
-  { _id: 'AirAsia', total: 65858089 },
-  { _id: 'GO_FIRST', total: 130973972 },
-  { _id: 'Indigo', total: 229580207 },
-  { _id: 'Air_India', total: 1901529790 }
+]) = Retourner pour chaque compagnies aériennes la somme de tous les vols (somme en fonction de prix).
 
 db.Vols.find({class:"Economy"})
   .sort({price: -1})
-  .limit(10)
-[
-  {
-    _id: ObjectId('64ff67bf6817d5ad97fa8550'),
-    airline: 'Air_India',
-    flight: 'AI-539',
-    source_city: 'Chennai',
-    departure_time: 'Evening',
-    stops: 'one',
-    arrival_time: 'Evening',
-    destination_city: 'Kolkata',
-    class: 'Economy',
-    duration: 24.58,
-    days_left: 1,
-    price: 42349
-  },
-  {
-    _id: ObjectId('64ff67bc6817d5ad97f8f151'),
-    airline: 'Air_India',
-    flight: 'AI-565',
-    source_city: 'Bangalore',
-    departure_time: 'Afternoon',
-    stops: 'one',
-    arrival_time: 'Afternoon',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 25.25,
-    days_left: 3,
-    price: 40354
-  },
-  {
-    _id: ObjectId('64ff67bf6817d5ad97fa5df5'),
-    airline: 'Vistara',
-    flight: 'UK-836',
-    source_city: 'Chennai',
-    departure_time: 'Morning',
-    stops: 'one',
-    arrival_time: 'Night',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 9.5,
-    days_left: 3,
-    price: 37646
-  },
-  {
-    _id: ObjectId('64ff67bf6817d5ad97fa782a'),
-    airline: 'Vistara',
-    flight: 'UK-832',
-    source_city: 'Chennai',
-    departure_time: 'Early_Morning',
-    stops: 'one',
-    arrival_time: 'Afternoon',
-    destination_city: 'Bangalore',
-    class: 'Economy',
-    duration: 9.08,
-    days_left: 10,
-    price: 36911
-  },
-  {
-    _id: ObjectId('64ff67bf6817d5ad97fa75d8'),
-    airline: 'Air_India',
-    flight: 'AI-539',
-    source_city: 'Chennai',
-    departure_time: 'Evening',
-    stops: 'one',
-    arrival_time: 'Afternoon',
-    destination_city: 'Bangalore',
-    class: 'Economy',
-    duration: 19.5,
-    days_left: 1,
-    price: 36333
-  },
-  {
-    _id: ObjectId('64ff67bf6817d5ad97fa5df4'),
-    airline: 'Vistara',
-    flight: 'UK-836',
-    source_city: 'Chennai',
-    departure_time: 'Morning',
-    stops: 'one',
-    arrival_time: 'Night',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 11.08,
-    days_left: 3,
-    price: 36071
-  },
-  {
-    _id: ObjectId('64ff67ba6817d5ad97f80b57'),
-    airline: 'Air_India',
-    flight: 'AI-877',
-    source_city: 'Delhi',
-    departure_time: 'Morning',
-    stops: 'two_or_more',
-    arrival_time: 'Early_Morning',
-    destination_city: 'Chennai',
-    class: 'Economy',
-    duration: 20.33,
-    days_left: 2,
-    price: 35145
-  },
-  {
-    _id: ObjectId('64ff67bf6817d5ad97fa5df3'),
-    airline: 'Air_India',
-    flight: 'AI-440',
-    source_city: 'Chennai',
-    departure_time: 'Early_Morning',
-    stops: 'one',
-    arrival_time: 'Afternoon',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 32.92,
-    days_left: 3,
-    price: 34982
-  },
-  {
-    _id: ObjectId('64ff67bf6817d5ad97fa423b'),
-    airline: 'Vistara',
-    flight: 'UK-822',
-    source_city: 'Chennai',
-    departure_time: 'Morning',
-    stops: 'one',
-    arrival_time: 'Night',
-    destination_city: 'Delhi',
-    class: 'Economy',
-    duration: 11.42,
-    days_left: 3,
-    price: 34968
-  },
-  {
-    _id: ObjectId('64ff67bd6817d5ad97f954f4'),
-    airline: 'Vistara',
-    flight: 'UK-776',
-    source_city: 'Kolkata',
-    departure_time: 'Evening',
-    stops: 'one',
-    arrival_time: 'Afternoon',
-    destination_city: 'Delhi',
-    class: 'Economy',
-    duration: 20.58,
-    days_left: 2,
-    price: 34944
-  }
-]
+  .limit(10) = Retourner les noms de compagnies de top 10 vols économiques les plus cher.
 
 db.Vols.find({
   source_city: { $regex: '(?=.*e)(?=.*i)', $options: 'i' }
-})
-[
+}) = Retrouver les vols qui d´ecollent d’une ville contient la lettre ’e’ et ’i’
+
+db.Restau.find({ borough: "Manhattan" }) = Trouver tous les restaurants dans l’arrondissement ”Manhattan”.
+
+db.Restau.find({ cuisine: "Chinese" }) = Trouver tous les restaurants de cuisine ”Chinoise”.
+
+db.Restau.find({ borough: "Bronx" , cuisine: "Delicatessen" }) = Trouver les restaurants dans l’arrondissement ”Bronx” qui proposent une cuisine ”Delicatessen”.
+
+db.Restau.find({ borough: { $in: ["Staten Island", "Queens"] } }) = Trouver les restaurants dans les arrondissements ”Staten Island” ou ”Queens”.
+
+db.Restau.find({ cuisine: { $ne: "Mexican" } }) = Trouver tous les restaurants qui ne proposent pas de cuisine ”Mexicaine”.
+
+db.Restau.find({ 
+  borough: "Brooklyn", 
+  cuisine: { $in: ["American", "American (New)", "Italian"] }
+}) = Trouver tous les restaurants dans l’arrondissement ”Brooklyn” avec une cuisine ”American”, ”American (New)”, ou ”Italian”.
+
+db.Restau.find({
+  cuisine: "Delicatessen",
+  "grades.score": { $lte: 10 }
+}) = Trouver les restaurants qui ont une cuisine ”Delicatessen” et qui ont reçu au moins une note avec un score inférieur ou égal à 10.
+
+db.Restau.find({ "grades.score": { $gt: 20 } }) = Trouver les restaurants qui ont reçu au moins une note avec un score supérieur à 20.
+
+db.Restau.find({ name: { $exists: true } }) = Trouver les documents où le champ name existe
+
+db.Restau.find({ "address.street": { $type: "string" } }) = Trouver les restaurants qui ont le champ address.street et dont la valeur est une chaîne de caractères.
+
+db.Restau.find({ name: { $regex: '^la', $options: 'i' } }) = Trouver tous les restaurants dont le nom commence par ”La” (insensible à la casse), (^la : le nom (name) commence par "la" (^ indique le début de la chaîne). $options: 'i' : la recherche est insensible à la casse (majuscules/minuscules)).
+
+db.Restau.find({ grades: { $elemMatch: { grade: "A", score: 10 } } }) =  Trouver les restaurants où le tableau grades contient un document avec à la fois grade : A et un score de 10. ($elemMatch en MongoDB permet de rechercher dans un tableau (array) des documents qui correspondent à plusieurs conditions en même temps.)
+
+db.Restau.aggregate([
+  { $count: "total_restaurants" }
+]) = Compter le nombre total de restaurants dans la collection (avec l’operateur aggregate)
+
+db.Restau.aggregate([
+  { $group: { _id: "$borough", total_restaurants: { $sum: 1 } } }
+]) = Obtenir le nombre total de restaurants par arrondissement.
+
+db.Restau.aggregate([
   {
-    _id: ObjectId('64ff67b96817d5ad97f780b0'),
-    airline: 'Air_India',
-    flight: 'AI-665',
-    source_city: 'Delhi',
-    departure_time: 'Early_Morning',
-    stops: 'zero',
-    arrival_time: 'Morning',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 2.17,
-    days_left: 1,
-    price: 5955
+    $group: {
+      _id: { borough: "$borough", cuisine: "$cuisine" }
+    }
   },
   {
-    _id: ObjectId('64ff67b96817d5ad97f780b3'),
-    airline: 'GO_FIRST',
-    flight: 'G8-266',
-    source_city: 'Delhi',
-    departure_time: 'Early_Morning',
-    stops: 'one',
-    arrival_time: 'Evening',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 11.75,
-    days_left: 1,
-    price: 5954
-  },
-  {
-    _id: ObjectId('64ff67b96817d5ad97f780b1'),
-    airline: 'AirAsia',
-    flight: 'I5-747',
-    source_city: 'Delhi',
-    departure_time: 'Evening',
-    stops: 'one',
-    arrival_time: 'Early_Morning',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 12.25,
-    days_left: 1,
-    price: 5949
-  },
-  {
-    _id: ObjectId('64ff67b96817d5ad97f780b2'),
-    airline: 'AirAsia',
-    flight: 'I5-747',
-    source_city: 'Delhi',
-    departure_time: 'Evening',
-    stops: 'one',
-    arrival_time: 'Morning',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 16.33,
-    days_left: 1,
-    price: 5949
-  },
-  {
-    _id: ObjectId('64ff67b96817d5ad97f780b4'),
-    airline: 'GO_FIRST',
-    flight: 'G8-101',
-    source_city: 'Delhi',
-    departure_time: 'Early_Morning',
-    stops: 'one',
-    arrival_time: 'Night',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 14.5,
-    days_left: 1,
-    price: 5954
-  },
-  {
-    _id: ObjectId('64ff67b96817d5ad97f780b5'),
-    airline: 'GO_FIRST',
-    flight: 'G8-103',
-    source_city: 'Delhi',
-    departure_time: 'Evening',
-    stops: 'one',
-    arrival_time: 'Morning',
-    destination_city: 'Mumbai',
-    class: 'Economy',
-    duration: 15.67,
-    days_left: 1,
-    price: 5954
+    $project: {
+      _id: 0,
+      borough: "$_id.borough",
+      cuisine: "$_id.cuisine"
+    }
   }
-]
+]) = Lister toutes les cuisines uniques et leurs arrondissements respectifs. (L’opérateur $project dans une agrégation MongoDB permet de sélectionner ou transformer les champs qui seront présents dans le résultat final. Exemple : $_id.cuisine devient cuisine)
+
+db.Restau.aggregate([
+  { $unwind: "$grades" },
+  { $group: {
+      _id: "$name",
+      average_score: { $avg: "$grades.score" }
+    }
+  }
+]) = Trouver le score d’inspection moyen pour chaque restaurant.
+
+db.Restau.aggregate([
+  { $unwind: "$grades" },
+  { $group: {
+      _id: "$name",
+      average_score: { $avg: "$grades.score" }
+    }
+  },
+  { $sort: { average_score: -1 } },
+  { $limit: 5 }
+]) = Trouver les 5 meilleurs restaurants avec le score d’inspection moyen le plus élevé.
+
+db.Restau.aggregate([
+  { $unwind: "$grades" },
+  { $match: { "grades.score": { $ne: null } } },
+  { $group: {
+      _id: "$name",
+      min_score: { $min: "$grades.score" }
+    }
+  },
+  { $sort: { min_score: 1 } },
+  { $limit: 1 }
+]) = Trouver le restaurant avec le score d’inspection minimum ($ne = not equal)
+
+db.Restau.find(
+  { borough: "Brooklyn" },
+  { _id: 0, name: 1, cuisine: 1 }
+) = Trouver tous les restaurants à ”Brooklyn” et projeter uniquement les champs name et cuisine.
+
+db.Restau.createIndex({ name: "text", cuisine: "text" })
+db.Restau.find({
+  $text: { $search: "coffee" }
+}) = Effectuer une recherche en texte int´egral pour les restaurants avec ”coffee” dans leur nom ou leur cuisine.
+
+agg_rst = coll.Restau.distinct("cuisine")
+print(agg_rst) = Style de cuisine dans la collection
+
+agg_rst = coll.Restau.distinct("grades")
+print(agg_rst) = Tous les grades possible de la base
+
+agg_rst = coll.Restau.count_documents({ "cuisine": "French" })
+print(agg_rst) = Compter le nombre de resto Français
+
+agg_rst = coll.Restau.count_documents({ "address.street": "Central Avenue" })
+print(agg_rst) = Compter le nombre de resto dans Central Avenue
+
+agg_rst = coll.Restau.count_documents({ "grades.score": { "$gt": 50 } })
+print(agg_rst) = Compter le nombre de resto qui ont plus de 50 de score
+
+agg_rst = coll.Restau.find(
+    {},
+    { "name": 1, "address.building": 1, "address.street": 1 }
+)
+for e in agg_rst:
+    print(e) = Lister les resto en affichant que le nom, l'immeuble et la rue
+
+agg_rst = coll.Restau.find(
+    { "name": { "$eq": "Burger King" } },
+    { "name": 1, "borough": 1 }
+)
+for e in agg_rst:
+    print(e) = Lister les resto qui s'apelle Burger King en affichant que le nom et le quartier
+
+agg_rst = coll.Restau.find(
+    { "address.street": { "$in": ["Union Street", "Union Square"] } }
+)
+for e in agg_rst:
+    print(e) = Lister tous les resto qui sont sur Union Street ou Union Square
+  
+agg_rst = coll.Restau.find(
+    { "address.coord.1": { "$gt": 40.90 } },
+    { "name": 1, "address.coord": 1 }
+)
+for e in agg_rst:
+    print(e) = Lister les resto situés au-dessus de la lattitude 40.90
+
+agg_rst = coll.Restau.find(
+    { "grades": { "$elemMatch": { "score": 0, "grade": "A" } } },
+    { "name": 1, "grades": 1 }
+)
+for e in agg_rst:
+    print(e) = Lister les restaurants ayant eu un score de 0 et un grade "A"
