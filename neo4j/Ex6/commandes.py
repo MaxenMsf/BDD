@@ -96,8 +96,96 @@ def similarite_competences():
     print("\n--- SIMILARITÉ ENTRE COMPÉTENCES ---")
     comp1 = input("Première compétence : ")
     comp2 = input("Deuxième compétence : ")
-    # TODO: Implémenter la requête Neo4j
-    print(f"Calcul de similarité entre {comp1} et {comp2}")
+    
+    # Requête pour trouver les métiers qui utilisent chaque compétence
+    query = """
+    MATCH (s1:Skill)
+    WHERE toLower(s1.name) CONTAINS toLower($comp1)
+    MATCH (s2:Skill)
+    WHERE toLower(s2.name) CONTAINS toLower($comp2)
+    
+    // Métiers associés à la compétence 1 (requise ou optionnelle)
+    OPTIONAL MATCH (o1:Occupation)-[:REQUIRES]->(s1)
+    OPTIONAL MATCH (o1_opt:Occupation)-[:OPTIONAL_SKILL]->(s1)
+    WITH s1, s2, collect(DISTINCT o1) + collect(DISTINCT o1_opt) as metiers_comp1
+    
+    // Métiers associés à la compétence 2 (requise ou optionnelle)
+    OPTIONAL MATCH (o2:Occupation)-[:REQUIRES]->(s2)
+    OPTIONAL MATCH (o2_opt:Occupation)-[:OPTIONAL_SKILL]->(s2)
+    WITH s1, s2, metiers_comp1, collect(DISTINCT o2) + collect(DISTINCT o2_opt) as metiers_comp2
+    
+    // Calcul de l'intersection (métiers communs)
+    WITH s1, s2, metiers_comp1, metiers_comp2,
+         [m IN metiers_comp1 WHERE m IN metiers_comp2] as intersection
+    
+    // Calcul de l'union (tous les métiers distincts)
+    WITH s1, s2, metiers_comp1, metiers_comp2, intersection,
+         [m IN metiers_comp1 + metiers_comp2] as union_list
+    
+    // Dédupliquer l'union
+    WITH s1, s2, metiers_comp1, metiers_comp2, intersection,
+         [m IN union_list | m] as all_metiers
+    UNWIND all_metiers as metier
+    WITH s1, s2, metiers_comp1, metiers_comp2, intersection, 
+         collect(DISTINCT metier) as union
+    
+    RETURN s1.name as competence1,
+           s2.name as competence2,
+           size(metiers_comp1) as nb_metiers_comp1,
+           size(metiers_comp2) as nb_metiers_comp2,
+           size(intersection) as nb_intersection,
+           size(union) as nb_union,
+           CASE 
+               WHEN size(union) = 0 THEN 0.0
+               ELSE toFloat(size(intersection)) / toFloat(size(union))
+           END as similarite_jaccard,
+           [m IN intersection | m.occupation] as metiers_communs
+    """
+    
+    resultats = graph.run(query, comp1=comp1, comp2=comp2).data()
+    
+    if not resultats or not resultats[0]['competence1'] or not resultats[0]['competence2']:
+        print(f"\n❌ Une ou les deux compétences n'ont pas été trouvées")
+        return
+    
+    # Affichage des résultats
+    for result in resultats:
+        print(f"\n{'='*70}")
+        print(f"🔍 ANALYSE DE SIMILARITÉ")
+        print(f"{'='*70}")
+        print(f"\n📊 Compétence 1: {result['competence1']}")
+        print(f"   └─ Nombre de métiers: {result['nb_metiers_comp1']}")
+        
+        print(f"\n📊 Compétence 2: {result['competence2']}")
+        print(f"   └─ Nombre de métiers: {result['nb_metiers_comp2']}")
+        
+        print(f"\n🔗 Métiers en commun: {result['nb_intersection']}")
+        print(f"🌐 Total métiers distincts: {result['nb_union']}")
+        
+        print(f"\n{'='*70}")
+        print(f"📈 SIMILARITÉ DE JACCARD: {result['similarite_jaccard']:.4f}")
+        print(f"   Calcul: {result['nb_intersection']} / {result['nb_union']} = {result['similarite_jaccard']:.4f}")
+        print(f"{'='*70}")
+        
+        # Interprétation du résultat
+        similarite = result['similarite_jaccard']
+        if similarite >= 0.7:
+            interpretation = "🟢 Très similaires - Ces compétences sont fortement liées"
+        elif similarite >= 0.4:
+            interpretation = "🟡 Moyennement similaires - Il y a une corrélation notable"
+        elif similarite >= 0.1:
+            interpretation = "🟠 Faiblement similaires - Peu de métiers en commun"
+        else:
+            interpretation = "🔴 Très peu similaires - Compétences distinctes"
+        
+        print(f"\n💡 Interprétation: {interpretation}")
+        
+        if result['metiers_communs']:
+            print(f"\n📋 Métiers utilisant les deux compétences ({len(result['metiers_communs'])}):")
+            for i, metier in enumerate(result['metiers_communs'][:10], 1):
+                print(f"   {i}. {metier}")
+            if len(result['metiers_communs']) > 10:
+                print(f"   ... et {len(result['metiers_communs']) - 10} autre(s)")
 
 def similarite_metiers():
     """Calcule la similarité entre deux métiers"""
