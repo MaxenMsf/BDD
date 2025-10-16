@@ -1,4 +1,5 @@
 # Système de Gestion des Métiers - Guide d'utilisation
+# MIONE Alexandre, PIERREUSE Nathan
 
 Application de gestion et d'analyse des métiers basée sur Neo4j, permettant d'explorer les compétences, connaissances et relations entre différents métiers.
 
@@ -52,7 +53,7 @@ Code: 7318
    • utiliser des techniques textiles pour des produits confectionnés à la main
    • utiliser les technologies de machines à tisser
    • utiliser une machine à tisser
-   ... et 1 autre(s)
+   • découper des textiles
 
 ⭐ Compétences optionnelles:
    • commander des matières textiles
@@ -64,7 +65,8 @@ Code: 7318
    • techniques textiles
    • industrie textile
    • mesure de textiles
-   ... et 2 autre(s)
+   • technologies textiles
+   • matières textiles
 ```
 
 ---
@@ -82,33 +84,22 @@ Entrez le nom de la compétence ou connaissance : programmer
 **Résultat attendu :**
 ```
 ======================================================================
-🔍 ANALYSE : programmer des machines
+🔍 ANALYSE : programmer des approvisionnements en écloserie
 ======================================================================
 Type: Compétence (Skill)
 
 📊 Statistiques d'utilisation:
-   • Métiers requérant cette compétence: 23
-   • Métiers où elle est optionnelle: 12
-   • Total de métiers utilisant cette compétence: 35
+   • Métiers requérant cette compétence: 1
+   • Métiers où elle est optionnelle: 0
+   • Total de métiers utilisant cette compétence: 1
 
-✅ Métiers qui requièrent cette compétence (exemples):
-   1. Développeur logiciel
-   2. Ingénieur en automatisation
-   3. Technicien en robotique
-   4. Programmeur CNC
-   5. Développeur d'applications
-   ... et 18 autre(s)
-
-⭐ Métiers où cette compétence est optionnelle (exemples):
-   1. Chef de projet IT
-   2. Analyste de systèmes
-   3. Technicien de maintenance
-   ... et 9 autre(s)
+✅ Métiers qui requièrent cette compétence:
+   1. responsable d'écloserie
 
 🔗 Compétences souvent associées:
-   • utiliser des bases de données
-   • développer des applications
-   • analyser des systèmes
+   • traiter les maladies des poissons
+   • provoquer la reproduction d'espèces aquacoles en élevage
+   • gérer la production de stock de ressources aquatiques
 ```
 
 **Cas d'usage :**
@@ -127,8 +118,8 @@ Calcule la similarité de Jaccard entre deux compétences basée sur leur co-occ
 **Exemple d'utilisation :**
 ```
 Votre choix : 3
-Première compétence : programmer
-Deuxième compétence : coder
+Première compétence : gérer le personnel
+Deuxième compétence : recruter des employés
 ```
 
 **Résultat :**
@@ -137,27 +128,27 @@ Deuxième compétence : coder
 🔍 ANALYSE DE SIMILARITÉ
 ======================================================================
 
-📊 Compétence 1: programmer des machines
+📊 Compétence 1: gérer le personnel
    └─ Nombre de métiers: 45
 
-📊 Compétence 2: coder
+📊 Compétence 2: recruter des employés
    └─ Nombre de métiers: 38
 
-🔗 Métiers en commun (Intersection): 12
-🌐 Total métiers distincts (Union): 71
+🔗 Métiers en commun (Intersection): 25
+🌐 Total métiers distincts (Union): 58
 
 ======================================================================
-📈 SIMILARITÉ DE JACCARD: 0.1690
+📈 SIMILARITÉ DE JACCARD: 0.4310
    Formule: J(A,B) = |A ∩ B| / |A ∪ B|
-   Calcul: 12 / 71 = 0.1690
+   Calcul: 25 / 58 = 0.4310
 ======================================================================
 
-💡 Interprétation: 🟠 Faiblement similaires - Peu de métiers en commun
+💡 Interprétation: 🟡 Moyennement similaires - Il y a une corrélation notable
 
-📋 Métiers utilisant les deux compétences (12):
-   1. Développeur logiciel
-   2. Ingénieur informatique
-   3. Technicien en automatisation
+📋 Métiers utilisant les deux compétences (25):
+   1. directeur comptable/directrice comptable
+   2. responsable import-export de viandes et de produits à base de viande
+   3. chef cuisinier/cheffe cuisinière
    ...
 ```
 
@@ -176,8 +167,8 @@ Calcule la similarité entre deux métiers en se basant sur leurs compétences e
 **Exemple d'utilisation :**
 ```
 Votre choix : 4
-Premier métier : développeur web
-Deuxième métier : développeur mobile
+Premier métier : tisseur
+Deuxième métier : opérateur de machines textiles
 ```
 
 **Résultat attendu :**
@@ -186,74 +177,61 @@ Deuxième métier : développeur mobile
 🔍 ANALYSE DE SIMILARITÉ ENTRE MÉTIERS
 ======================================================================
 
-📋 Métier 1: Développeur web / développeuse web
-   Code: 2512
-   • Compétences requises: 15
-   • Compétences optionnelles: 8
-   • Connaissances requises: 12
-
-📋 Métier 2: Développeur d'applications mobiles
-   Code: 2513
-   • Compétences requises: 14
+📋 Métier 1: tisseur/tisseuse
+   Code: 7318
+   • Compétences requises: 4
    • Compétences optionnelles: 10
-   • Connaissances requises: 11
+   • Connaissances requises: 5
+
+📋 Métier 2: conducteur de machines de produits non tissés
+   Code: 8131
+   • Compétences requises: 2
+   • Compétences optionnelles: 2
+   • Connaissances requises: 2
 
 ======================================================================
 🎯 COMPÉTENCES
 ======================================================================
 
-✅ Compétences requises en commun (8):
-   • programmer en JavaScript
-   • utiliser des bases de données
-   • développer des interfaces utilisateur
-   • tester des applications
-   • déboguer du code
-   • utiliser des outils de versioning
-   • appliquer des principes de sécurité
-   • travailler en équipe agile
+✅ Compétences requises en commun (1):
+   • contrôler des procédés de production de textiles
 
 📊 Statistiques compétences:
-   • Intersection: 8
-   • Union: 21
-   • Similarité de Jaccard: 0.3810 (38.1%)
+   • Intersection: 1
+   • Union: 15
+   • Similarité de Jaccard: 0.0667 (6.7%)
 
 ======================================================================
 📚 CONNAISSANCES
 ======================================================================
 
-✅ Connaissances requises en commun (7):
-   • langages de programmation
-   • architecture logicielle
-   • bases de données
-   • protocoles réseau
-   • sécurité informatique
-   • méthodologies agiles
-   • patterns de conception
+✅ Connaissances requises en commun (2):
+   • industrie textile
+   • matières textiles
 
 📊 Statistiques connaissances:
-   • Intersection: 7
-   • Union: 16
-   • Similarité de Jaccard: 0.4375 (43.8%)
+   • Intersection: 2
+   • Union: 5
+   • Similarité de Jaccard: 0.4000 (40.0%)
 
 ======================================================================
 📈 SCORE GLOBAL DE SIMILARITÉ
 ======================================================================
 
-Score moyen (compétences + connaissances): 0.4092 (40.9%)
+Score moyen (compétences + connaissances): 0.2334 (23.3%)
 
-💡 Interprétation: 🟡 Moyennement similaires - Parcours de transition envisageable
+💡 Interprétation: 🔵 Faiblement similaires - Métiers distincts
 
 🎓 Recommandations pour la transition:
-   • Compétences à acquérir: 6
-      - Développement iOS/Swift
-      - Développement Android/Kotlin
-      - Design mobile-first
-      - Optimisation mobile
-      - APIs mobiles natives
-      - Tests sur devices
+   • Compétences à acquérir: 1 (requises)
+      - fabriquer des revêtements de sol en textile
+   
+   • Compétences optionnelles à développer: 2
+      - fabriquer des fibres synthétiques
+      - produire des échantillons textiles
 
-   • Compétences transférables: 8
-      Ces compétences facilitent grandement la transition !
+   • Compétences transférables: 1
+      Ces compétences facilitent la transition !
 ```
 
 **Cas d'usage :**
@@ -292,12 +270,12 @@ découper des textiles
    🔹 Compétences requises (exemples): utiliser des techniques textiles, utiliser une machine à tisser, découper des textiles
    ⚪ Compétences optionnelles (exemples): commander des matières textiles, produire des échantillons textiles
 
-2. 📋 opérateur de machines textiles
-   Code: 8131
-   🟡 TRÈS BON - Score global: 67.5%
-   ✅ Compétences requises: 3/5 (60.0%)
-   ⭐ Compétences optionnelles: 1/3 (33.3%)
-   📊 Total: 4/8
+2. 📋 opérateur de sciage bois/opératrice de sciage bois
+   Code: 8172
+   🔵 PARTIEL - Score global: 7.1%
+   ✅ Compétences requises: 1/14 (7.1%)
+   ⭐ Compétences optionnelles: 0/16 (0.0%)
+   📊 Total: 1/30
    ...
 ```
 
@@ -322,7 +300,7 @@ Analyse les possibilités de mobilité professionnelle depuis un métier actuel,
 **Exemple d'utilisation :**
 ```
 Votre choix : 6
-Métier actuel : développeur web
+Métier actuel : chef cuisinier
 ```
 
 **Résultat attendu :**
@@ -331,93 +309,51 @@ Métier actuel : développeur web
 🔄 ANALYSE DE MOBILITÉ PROFESSIONNELLE
 ======================================================================
 
-📋 Métier actuel: Développeur web / développeuse web
-   Code: 2512
-   • Compétences requises: 15
-   • Compétences optionnelles: 8
-   • Connaissances requises: 12
+📋 Métier actuel: chef cuisinier/cheffe cuisinière
+   Code: 3434
+   • Compétences requises: 27
+   • Compétences optionnelles: 14
+   • Connaissances requises: 2
 
 ======================================================================
 🎯 MÉTIERS ACCESSIBLES PAR MOBILITÉ
 ======================================================================
 Métiers triés par facilité de transition (score de similarité décroissant)
 
-1. 🟢 TRANSITION FACILE - Développeur d'applications mobiles
-   Code: 2513
-   Similarité: 85.2%
+1. 🟢 TRANSITION FACILE - directeur d'établissement thermal/directrice d'établissement thermal
+   Code: 1431
+   Similarité: 82.4%
    
-   ✅ Compétences déjà acquises: 12/14 (85.7%)
-   📚 Connaissances déjà acquises: 9/11 (81.8%)
+   ✅ Compétences déjà acquises: 15/34 (44.1%)
+   📚 Connaissances déjà acquises: 2/4 (50.0%)
    
    🎓 Formation complémentaire nécessaire:
-      Compétences à acquérir (2):
-      • Développement iOS/Swift
-      • Développement Android/Kotlin
+      Compétences à acquérir (19):
+      • garantir la satisfaction des clients
+      • répondre aux demandes des clients
+      • garantir l'accessibilité des infrastructures
+      ... et 16 autre(s)
       
       Connaissances à acquérir (2):
-      • Frameworks mobiles natifs
-      • Guidelines design mobile
+      • activités récréatives
+      • types de spa
    
-   ⏱️ Durée estimée de formation: 3-6 mois
-   💼 Opportunités d'emploi: Élevées
-
-2. 🟡 TRANSITION MOYENNE - Développeur full-stack
-   Code: 2514
-   Similarité: 72.5%
-   
-   ✅ Compétences déjà acquises: 10/16 (62.5%)
-   📚 Connaissances déjà acquises: 8/13 (61.5%)
-   
-   🎓 Formation complémentaire nécessaire:
-      Compétences à acquérir (6):
-      • DevOps et CI/CD
-      • Administration système
-      • Containers (Docker, Kubernetes)
-      • Cloud computing
-      • Monitoring et logging
-      • Performance optimization
-      
    ⏱️ Durée estimée de formation: 6-12 mois
-   💼 Opportunités d'emploi: Très élevées
+   💼 Opportunités d'emploi: Moyennes
 
-3. 🟡 TRANSITION MOYENNE - Analyste de systèmes
-   Code: 2511
-   Similarité: 65.8%
+2. 🟡 TRANSITION MOYENNE - responsable qualité chaussure et de viandes et de produits à base de viande
+   Code: 1324
+   Similarité: 65.2%
    
-   ✅ Compétences déjà acquises: 8/14 (57.1%)
-   📚 Connaissances déjà acquises: 7/12 (58.3%)
-   
-   🎓 Formation complémentaire nécessaire:
-      Compétences à acquérir (6):
-      • Analyse de besoins
-      • Modélisation UML
-      • Rédaction de spécifications
-      • Analyse de processus métier
-      • Gestion de projet
-      • Communication stakeholders
-   
-   ⏱️ Durée estimée de formation: 6-9 mois
-   💼 Opportunités d'emploi: Élevées
-
-4. 🟠 TRANSITION ACCESSIBLE - Chef de projet IT
-   Code: 1330
-   Similarité: 48.3%
-   
-   ✅ Compétences déjà acquises: 5/15 (33.3%)
-   📚 Connaissances déjà acquises: 6/14 (42.9%)
+   ✅ Compétences déjà acquises: 8/18 (44.4%)
+   📚 Connaissances déjà acquises: 1/4 (25.0%)
    
    🎓 Formation complémentaire nécessaire:
       Compétences à acquérir (10):
-      • Management d'équipe
-      • Gestion budgétaire
-      • Planification de projet
-      • Gestion des risques
-      • Communication client
-      • Méthodologies agiles (Scrum Master)
-      • Reporting et KPIs
-      • Négociation
-      • Gestion de contrats
-      • Leadership
+      • communiquer avec les expéditeurs
+      • avoir des connaissances en informatique
+      • gérer le risque financier
+      ... et 7 autre(s)
    
    ⏱️ Durée estimée de formation: 12-18 mois
    💼 Opportunités d'emploi: Moyennes
@@ -427,24 +363,24 @@ Métiers triés par facilité de transition (score de similarité décroissant)
 ======================================================================
 
 📈 Évolutions naturelles (même domaine):
-   • Senior Developer → Lead Developer → Architect
-   • Spécialisation: Frontend, Backend, DevOps
+   • Chef de cuisine → Chef exécutif → Directeur de restauration
+   • Spécialisation: Pâtisserie, Gastronomie moléculaire
 
 🔄 Reconversions facilitées:
-   1. Développeur mobile (forte similarité technique)
-   2. Full-stack developer (élargissement des compétences)
-   3. DevOps engineer (orientation infrastructure)
+   1. Directeur d'établissement thermal (gestion d'équipes)
+   2. Responsable qualité alimentaire (normes HACCP)
+   3. Formateur en cuisine (transmission de compétences)
 
 🎯 Secteurs porteurs avec vos compétences:
-   • FinTech
-   • E-commerce
-   • SaaS
-   • Agences digitales
+   • Hôtellerie de luxe
+   • Restauration collective
+   • Traiteur événementiel
+   • Formation culinaire
 
 🎓 Certifications recommandées:
-   • AWS/Azure/GCP (Cloud)
-   • React Native / Flutter (Mobile)
-   • Scrum Master (Gestion de projet)
+   • Management hôtelier
+   • Hygiène alimentaire (HACCP avancé)
+   • Gestion de restaurant
 ```
 
 **Critères d'analyse :**
@@ -465,9 +401,9 @@ Métiers triés par facilité de transition (score de similarité décroissant)
 
 ### Pour la recherche de métiers (Option 1)
 - La recherche est **insensible à la casse**
-- Utilisez des **mots partiels** : "développ" trouvera "développeur", "développeuse", etc.
+- Utilisez des **mots partiels** : "cuisi" trouvera "chef cuisinier", "cuisinier", etc.
 - Exemples de recherches :
-  - `tisseur` → trouve tous les métiers de tisseur
+  - `tisseur` → trouve tisseur/tisseuse
   - `ingénieur` → trouve tous les types d'ingénieurs
   - `responsable` → trouve tous les postes de responsables
 
@@ -475,25 +411,25 @@ Métiers triés par facilité de transition (score de similarité décroissant)
 - Recherche partielle acceptée : "programm" trouvera "programmer", "programmation", etc.
 - Fonctionne avec les compétences ET les connaissances
 - Exemples :
-  - `python` → trouve toutes les compétences liées à Python
-  - `gestion` → trouve toutes les compétences de gestion
+  - `gérer` → trouve "gérer le personnel", "gérer des budgets", etc.
   - `textile` → trouve connaissances et compétences textiles
+  - `programmer` → trouve "programmer des approvisionnements", etc.
 
 ### Pour la similarité de compétences (Option 3)
 - Saisir les compétences comme elles apparaissent dans la base (ou partiellement)
 - La comparaison est insensible à la casse
 - Exemples :
-  - ✅ `programmer des machines` / `coder`
-  - ✅ `python` / `java`
-  - ✅ `gérer` / `manager`
+  - ✅ `gérer le personnel` / `recruter des employés`
+  - ✅ `programmer` / `gérer`
+  - ✅ `utiliser` / `appliquer`
 
 ### Pour la similarité de métiers (Option 4)
 - Utiliser le nom du métier (recherche partielle acceptée)
 - Compare les compétences ET les connaissances
 - Exemples :
-  - `développeur web` / `développeur mobile`
+  - `tisseur` / `opérateur textile`
   - `ingénieur` / `technicien`
-  - `comptable` / `gestionnaire`
+  - `chef cuisinier` / `directeur thermal`
 
 ### Pour la recommandation de métiers (Option 5)
 - **Séparez les compétences par des virgules**
@@ -504,22 +440,22 @@ Métiers triés par facilité de transition (score de similarité décroissant)
 **Exemples :**
 ```
 # ✅ Correct
-programmer en Python,utiliser des bases de données,développer des applications web
+gérer le personnel,recruter des employés,former le personnel
 
 # ❌ Incorrect (avec guillemets)
-"programmer en Python","utiliser des bases de données"
+"gérer le personnel","recruter des employés"
 
 # ✅ Recherche partielle fonctionne
-python,base de données,web
+gérer,recruter,former
 ```
 
 ### Pour la mobilité professionnelle (Option 6)
 - Saisir votre métier actuel (recherche partielle)
 - Analyse automatique des métiers similaires
 - Exemples :
-  - `développeur` → trouve tous les métiers de développeur
+  - `cuisinier` → trouve chef cuisinier
   - `ingénieur` → métier actuel = ingénieur
-  - `responsable commercial`
+  - `responsable` → trouve responsable d'écloserie, etc.
 
 ## Structure de la base de données
 
