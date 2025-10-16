@@ -21,8 +21,68 @@ def fiche_metier():
     """Affiche la fiche d'un métier"""
     print("\n--- FICHE MÉTIER ---")
     metier = input("Entrez le nom du métier : ")
-    # TODO: Implémenter la requête Neo4j
-    print(f"Recherche de la fiche pour : {metier}")
+    
+    # Requête pour récupérer toutes les informations du métier
+    query = """
+    MATCH (o:Occupation)
+    WHERE toLower(o.occupation) CONTAINS toLower($metier)
+    OPTIONAL MATCH (o)-[:REQUIRES]->(s:Skill)
+    OPTIONAL MATCH (o)-[:OPTIONAL_SKILL]->(os:Skill)
+    OPTIONAL MATCH (o)-[:REQUIRES_KNOWLEDGE]->(k:Knowledge)
+    OPTIONAL MATCH (o)-[:OPTIONAL_KNOWLEDGE]->(ok:Knowledge)
+    RETURN o.occupation as nom, 
+           o.code as code,
+           o.alt as alternatives,
+           collect(DISTINCT s.name) as competences_requises,
+           collect(DISTINCT os.name) as competences_optionnelles,
+           collect(DISTINCT k.name) as connaissances_requises,
+           collect(DISTINCT ok.name) as connaissances_optionnelles
+    """
+    
+    resultats = graph.run(query, metier=metier).data()
+    
+    if not resultats:
+        print(f"\n❌ Aucun métier trouvé pour : {metier}")
+        return
+    
+    # Affichage des résultats
+    for i, metier_info in enumerate(resultats, 1):
+        print(f"\n{'='*60}")
+        print(f"📋 MÉTIER {i}: {metier_info['nom']}")
+        print(f"{'='*60}")
+        print(f"Code: {metier_info['code']}")
+        
+        if metier_info['alternatives']:
+            print(f"\n🔄 Autres appellations:")
+            appellations = [app.strip() for app in metier_info['alternatives'].split(',') if app.strip()]
+            for appellation in appellations:
+                print(f"   • {appellation}")
+        
+        if metier_info['competences_requises'] and metier_info['competences_requises'][0]:
+            print(f"\n✅ Compétences requises:")
+            for comp in metier_info['competences_requises']:
+                if comp:
+                    print(f"   • {comp}")
+        
+        if metier_info['competences_optionnelles'] and metier_info['competences_optionnelles'][0]:
+            print(f"\n⭐ Compétences optionnelles:")
+            for comp in metier_info['competences_optionnelles']:
+                if comp:
+                    print(f"   • {comp}")
+        
+        if metier_info['connaissances_requises'] and metier_info['connaissances_requises'][0]:
+            print(f"\n📚 Connaissances requises:")
+            for conn in metier_info['connaissances_requises']:
+                if conn:
+                    print(f"   • {conn}")
+        
+        if metier_info['connaissances_optionnelles'] and metier_info['connaissances_optionnelles'][0]:
+            print(f"\n📖 Connaissances optionnelles:")
+            for conn in metier_info['connaissances_optionnelles']:
+                if conn:
+                    print(f"   • {conn}")
+    
+    print(f"\n✨ {len(resultats)} métier(s) trouvé(s)")
 
 def competence_connaissance():
     """Affiche les informations sur une compétence ou connaissance"""
