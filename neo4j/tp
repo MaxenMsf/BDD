@@ -1,0 +1,80 @@
+CREATE(:Personne{nom:"Bob", age:33})
+CREATE(:Vehicule{type:"voiture", modele:"clio"})
+
+MATCH(o1:Personne{nom:"Bob"}),(o2:Vehicule{modele:"clio"})
+CREATE (o1)-[:Possede{depuis: 2014}]->(o2)
+
+MATCH(o1:Personne{nom:"Bob"}),(o2:Vehicule{modele:"clio"})
+CREATE (o1)-[:Conduire]->(o2)
+
+# Afficher la liste des noeuds crées (de chaque type)
+MATCH (n) 
+RETURN n;
+
+# Calculer le nombre de noeuds crées (de chaque type);
+MATCH (n)
+RETURN labels(n) AS Type, count(*) AS Nombre;
+
+# Afficher toutes les personnes dont les âges sont supérieurs à 20;
+MATCH (p:Personne)
+WHERE p.age > 20
+RETURN p;
+
+# Afficher les noms de toutes les personnes, triés par ordre croissant selon l’âge;
+MATCH (p:Personne)
+RETURN p.nom
+ORDER BY p.age;
+
+# Afficher le nombre de personnes dont les âges sont supérieurs à 20;
+MATCH (p:Personne)
+WHERE p.age > 20
+RETURN COUNT(p);
+
+# Afficher le nombre de personnes pour chaque âge;
+MATCH (p:Personne)
+RETURN p.age AS Age, count(*) AS Nombre
+ORDER BY Age ASC;
+
+# Afficher l’âge moyen de toutes les personnes;
+MATCH (p:Personne)
+RETURN AVG(p.age)
+
+# Exercice 3 Insertion et manipulation de données avec py2neo
+VOIR LE FICHIER neo4j_insert.py
+
+# 1. Donner le nombre des utilisateurs
+MATCH (u:User) 
+RETURN count(u) as nbUsers
+
+# 2. Donner le nombre de tweets
+MATCH (t:Tweet) 
+RETURN count(t) as nbTweets
+
+# 3. Donner le nombre d'hashtags
+MATCH (h:Hashtag) 
+RETURN count(h) as nbHashtags
+
+# 4. Donner le nombre de tweets contenant le hashtag "actualité"
+MATCH (t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag {name: 'actualite'})
+RETURN count(t) as nbTweets
+
+# 5. Donner le nombre d'utilisateurs différents qui ont tweeté un tweet contenant le hashtag "valls"
+MATCH (u:User)-[:POSTED]->(t:Tweet)-[:HAS_HASHTAG]->(h:Hashtag {name: 'valls'})
+RETURN count(DISTINCT u) as nbUsers
+
+# 6. Donner les tweets qui sont des réponses à un autre tweet
+MATCH (t1:Tweet)-[:REPLY_TO]->(t2:Tweet)
+RETURN t1.idTweet, t1.text, t2.idTweet as replyTo
+
+# 7. Donner le nombre de followers de "Spinomade"
+MATCH (u:User {screenName: 'Spinomade'})<-[:FOLLOWS]-(follower:User)
+RETURN count(follower) as nbFollowers
+
+# 8. Donner le nombre d'utilisateurs suivis par "Spinomade"
+MATCH (u:User {screenName: 'Spinomade'})-[:FOLLOWS]->(following:User)
+RETURN count(following) as nbFollowing
+
+# 9. Donner les noms des followers de "Spinomade"
+MATCH (u:User {screenName: 'Spinomade'})<-[:FOLLOWS]-(follower:User)
+RETURN follower.screenName, follower.name
+ORDER BY follower.screenName
