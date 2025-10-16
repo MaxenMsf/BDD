@@ -198,9 +198,163 @@ def similarite_metiers():
 def recommandation_metier():
     """Recommande des métiers basés sur des compétences"""
     print("\n--- RECOMMANDATION MÉTIER ---")
-    competences = input("Entrez vos compétences (séparées par des virgules) : ")
-    # TODO: Implémenter la requête Neo4j
-    print(f"Recherche de métiers correspondants à : {competences}")
+    competences_input = input("Entrez vos compétences (séparées par des virgules) : ")
+    
+    # Séparer et nettoyer les compétences
+    competences_list = [comp.strip() for comp in competences_input.split(',') if comp.strip()]
+    
+    if not competences_list:
+        print("\n❌ Aucune compétence saisie")
+        return
+    
+    print(f"\n🔍 Recherche de métiers pour {len(competences_list)} compétence(s)...")
+    
+    # Requête modifiée avec correspondance exacte
+    query = """
+    // Pour chaque compétence entrée par l'utilisateur
+    UNWIND $competences as comp_input
+    
+    // Trouver les compétences qui correspondent EXACTEMENT (insensible à la casse)
+    MATCH (s:Skill)
+    WHERE toLower(s.name) = toLower(comp_input)
+    
+    // Trouver les métiers liés à ces compétences
+    MATCH (metier:Occupation)
+    WHERE (metier)-[:REQUIRES]->(s) OR (metier)-[:OPTIONAL_SKILL]->(s)
+    
+    WITH DISTINCT metier, s, comp_input
+    
+    // Déterminer si la compétence est requise ou optionnelle pour ce métier
+    WITH metier, comp_input,
+         CASE 
+             WHEN (metier)-[:REQUIRES]->(s) THEN 'requise'
+             ELSE 'optionnelle'
+         END as type_competence
+    
+    WITH metier,
+         collect(DISTINCT CASE WHEN type_competence = 'requise' THEN comp_input END) as comps_requises_matched,
+         collect(DISTINCT CASE WHEN type_competence = 'optionnelle' THEN comp_input END) as comps_opt_matched
+    
+    // Nettoyer les null
+    WITH metier,
+         [c IN comps_requises_matched WHERE c IS NOT NULL] as comps_req_match,
+         [c IN comps_opt_matched WHERE c IS NOT NULL] as comps_opt_match
+    
+    // Récupérer toutes les compétences du métier
+    OPTIONAL MATCH (metier)-[:REQUIRES]->(skill_req:Skill)
+    OPTIONAL MATCH (metier)-[:OPTIONAL_SKILL]->(skill_opt:Skill)
+    
+    WITH metier,
+         size(comps_req_match) as nb_matches_requises,
+         size(comps_opt_match) as nb_matches_optionnelles,
+         collect(DISTINCT skill_req.name) as comp_requises,
+         collect(DISTINCT skill_opt.name) as comp_optionnelles
+    
+    // Filtrer les null
+    WITH metier, nb_matches_requises, nb_matches_optionnelles,
+         [c IN comp_requises WHERE c IS NOT NULL] as comp_req_clean,
+         [c IN comp_optionnelles WHERE c IS NOT NULL] as comp_opt_clean
+    
+    // Calculer les statistiques
+    WITH metier,
+         nb_matches_requises,
+         nb_matches_optionnelles,
+         comp_req_clean as comp_requises,
+         comp_opt_clean as comp_optionnelles,
+         size(comp_req_clean) as nb_comp_requises,
+         size(comp_opt_clean) as nb_comp_optionnelles,
+         size(comp_req_clean) + size(comp_opt_clean) as nb_total_comp
+    
+    WHERE nb_matches_requises > 0 OR nb_matches_optionnelles > 0
+    
+    // Calculer les scores
+    WITH metier, nb_matches_requises, nb_matches_optionnelles,
+         comp_requises, comp_optionnelles,
+         nb_comp_requises, nb_comp_optionnelles, nb_total_comp,
+         CASE 
+             WHEN nb_comp_requises > 0 
+             THEN toFloat(nb_matches_requises) / toFloat(nb_comp_requises)
+             ELSE 0.0
+         END as score_requises,
+         CASE 
+             WHEN nb_comp_optionnelles > 0 
+             THEN toFloat(nb_matches_optionnelles) / toFloat(nb_comp_optionnelles)
+             ELSE 0.0
+         END as score_optionnelles,
+         CASE 
+             WHEN nb_total_comp > 0 
+             THEN toFloat(nb_matches_requises + nb_matches_optionnelles) / toFloat(nb_total_comp)
+             ELSE 0.0
+         END as score_global
+    
+    RETURN metier.occupation as metier,
+           metier.code as code,
+           nb_matches_requises as competences_requises_correspondantes,
+           nb_matches_optionnelles as competences_optionnelles_correspondantes,
+           nb_comp_requises as total_competences_requises,
+           nb_comp_optionnelles as total_competences_optionnelles,
+           nb_total_comp as total_competences,
+           score_requises,
+           score_optionnelles,
+           score_global,
+           comp_requises[0..5] as comp_requises,
+           comp_optionnelles[0..5] as comp_optionnelles
+    ORDER BY score_global DESC, nb_matches_requises DESC, nb_matches_optionnelles DESC
+    LIMIT 20
+    """
+    
+    resultats = graph.run(query, competences=competences_list).data()
+    
+    if not resultats:
+        print(f"\n❌ Aucun métier trouvé correspondant à ces compétences")
+        return
+    
+    # Affichage des résultats
+    print(f"\n{'='*80}")
+    print(f"🎯 MÉTIERS RECOMMANDÉS ({len(resultats)} résultat(s))")
+    print(f"{'='*80}")
+    
+    for i, metier_info in enumerate(resultats, 1):
+        score_req_pct = metier_info['score_requises'] * 100
+        score_opt_pct = metier_info['score_optionnelles'] * 100
+        score_global_pct = metier_info['score_global'] * 100
+        
+        # Déterminer le niveau de correspondance global
+        if score_global_pct >= 80:
+            badge = "🟢 EXCELLENT"
+        elif score_global_pct >= 60:
+            badge = "🟡 TRÈS BON"
+        elif score_global_pct >= 40:
+            badge = "🟠 BON"
+        else:
+            badge = "🔵 PARTIEL"
+        
+        print(f"\n{i}. 📋 {metier_info['metier']}")
+        print(f"   Code: {metier_info['code']}")
+        print(f"   {badge} - Score global: {score_global_pct:.1f}%")
+        print(f"   ✅ Compétences requises: {metier_info['competences_requises_correspondantes']}/{metier_info['total_competences_requises']} ({score_req_pct:.1f}%)")
+        print(f"   ⭐ Compétences optionnelles: {metier_info['competences_optionnelles_correspondantes']}/{metier_info['total_competences_optionnelles']} ({score_opt_pct:.1f}%)")
+        print(f"   📊 Total: {metier_info['competences_requises_correspondantes'] + metier_info['competences_optionnelles_correspondantes']}/{metier_info['total_competences']}")
+        
+        # Afficher quelques compétences requises
+        if metier_info['comp_requises'] and metier_info['comp_requises'][0]:
+            comp_a_afficher = [c for c in metier_info['comp_requises'] if c]
+            if comp_a_afficher:
+                print(f"   🔹 Compétences requises (exemples): {', '.join(comp_a_afficher[:3])}")
+                if len(comp_a_afficher) > 3:
+                    print(f"      ... et {len(comp_a_afficher) - 3} autre(s)")
+        
+        # Afficher quelques compétences optionnelles
+        if metier_info['comp_optionnelles'] and metier_info['comp_optionnelles'][0]:
+            comp_opt_afficher = [c for c in metier_info['comp_optionnelles'] if c]
+            if comp_opt_afficher:
+                print(f"   ⚪ Compétences optionnelles (exemples): {', '.join(comp_opt_afficher[:3])}")
+                if len(comp_opt_afficher) > 3:
+                    print(f"      ... et {len(comp_opt_afficher) - 3} autre(s)")
+    
+    print(f"\n{'='*80}")
+    print(f"💡 Astuce: Consultez la 'Fiche métier' pour plus de détails sur un métier")
+    print(f"{'='*80}")
 
 def mobilite_professionnelle():
     """Analyse la mobilité professionnelle"""
