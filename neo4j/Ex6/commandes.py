@@ -88,8 +88,55 @@ def competence_connaissance():
     """Affiche les informations sur une compétence ou connaissance"""
     print("\n--- COMPÉTENCE/CONNAISSANCE ---")
     nom = input("Entrez le nom de la compétence ou connaissance : ")
-    # TODO: Implémenter la requête Neo4j
-    print(f"Recherche d'informations pour : {nom}")
+    query_skill = """
+    MATCH (s:Skill)
+    WHERE toLower(s.name) CONTAINS toLower($nom)
+    OPTIONAL MATCH (o1:Occupation)-[:REQUIRES]->(s)
+    OPTIONAL MATCH (o2:Occupation)-[:OPTIONAL_SKILL]->(s)
+    RETURN s.name as nom,
+           'Compétence' as type,
+           collect(DISTINCT o1.occupation) as metiers_requis,
+           collect(DISTINCT o2.occupation) as metiers_optionnels
+    """
+    query_knowledge = """
+    MATCH (k:Knowledge)
+    WHERE toLower(k.name) CONTAINS toLower($nom)
+    OPTIONAL MATCH (o1:Occupation)-[:REQUIRES_KNOWLEDGE]->(k)
+    OPTIONAL MATCH (o2:Occupation)-[:OPTIONAL_KNOWLEDGE]->(k)
+    RETURN k.name as nom,
+           'Connaissance' as type,
+           collect(DISTINCT o1.occupation) as metiers_requis,
+           collect(DISTINCT o2.occupation) as metiers_optionnels
+    """
+    resultats_skills = graph.run(query_skill, nom=nom).data()
+    resultats_knowledge = graph.run(query_knowledge, nom=nom).data()
+    
+    tous_resultats = resultats_skills + resultats_knowledge
+    
+    if not tous_resultats:
+        print(f"\n❌ Aucune compétence ou connaissance trouvée pour : {nom}")
+        return
+    
+    for i, item in enumerate(tous_resultats, 1):
+        print(f"\n{'='*60}")
+        print(f"📋 {item['type'].upper()} {i}: {item['nom']}")
+        print(f"{'='*60}")
+        metiers_requis = [m for m in item['metiers_requis'] if m]
+        if metiers_requis:
+            print(f"\n✅ Requise pour {len(metiers_requis)} métier(s):")
+            for metier in sorted(metiers_requis):
+                print(f"   • {metier}")
+        
+        metiers_optionnels = [m for m in item['metiers_optionnels'] if m]
+        if metiers_optionnels:
+            print(f"\n⭐ Optionnelle pour {len(metiers_optionnels)} métier(s):")
+            for metier in sorted(metiers_optionnels):
+                print(f"   • {metier}")
+        
+        if not metiers_requis and not metiers_optionnels:
+            print(f"\n❓ Cette {item['type'].lower()} n'est associée à aucun métier dans la base de données.")
+    
+    print(f"\n✨ {len(tous_resultats)} élément(s) trouvé(s)")
 
 def similarite_competences():
     """Calcule la similarité entre deux compétences"""
