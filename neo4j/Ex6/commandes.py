@@ -209,14 +209,14 @@ def recommandation_metier():
     
     print(f"\n🔍 Recherche de métiers pour {len(competences_list)} compétence(s)...")
     
-    # Requête modifiée avec correspondance exacte
+    # Requête avec CONTAINS
     query = """
     // Pour chaque compétence entrée par l'utilisateur
     UNWIND $competences as comp_input
     
-    // Trouver les compétences qui correspondent EXACTEMENT (insensible à la casse)
+    // Trouver les compétences qui correspondent (insensible à la casse)
     MATCH (s:Skill)
-    WHERE toLower(s.name) = toLower(comp_input)
+    WHERE toLower(s.name) CONTAINS toLower(comp_input)
     
     // Trouver les métiers liés à ces compétences
     MATCH (metier:Occupation)
